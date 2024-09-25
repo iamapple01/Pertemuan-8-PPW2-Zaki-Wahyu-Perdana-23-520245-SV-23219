@@ -30,7 +30,7 @@ class BukuController extends Controller
      */
     public function create()
     {
-        //
+        return view('/create');
     }
 
     /**
@@ -38,7 +38,14 @@ class BukuController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $buku = new Buku();
+        $buku->judul = $request->judul;
+        $buku->penulis = $request->penulis;
+        $buku->harga = $request->harga;
+        $buku->tgl_terbit = $request->tgl_terbit;
+        $buku->save();
+
+        return redirect('/buku');
     }
 
     /**
@@ -52,24 +59,43 @@ class BukuController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+
     }
+    
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'judul' => 'required|string|max:255',
+            'penulis' => 'required|string|max:255',
+            'harga' => 'required|integer',
+            'tgl_terbit' => 'required|date',
+        ]);
+        $buku = Buku::findOrFail($id);
+        $buku->judul = $request->input('judul');
+        $buku->penulis = $request->input('penulis');
+        $buku->harga = $request->input('harga');
+        $buku->tgl_terbit = $request->input('tgl_terbit');
+        $buku->save();
+        return redirect()->back()->with('success');
     }
+    
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $buku = Buku::find($id);
+        $buku->delete();
+
+        return redirect('/buku');
     }
+
+
 }
