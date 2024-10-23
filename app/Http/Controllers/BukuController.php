@@ -12,7 +12,11 @@ class BukuController extends Controller
      */
     public function index()
     {
-        // Mengambil semua data buku
+        $batas = 5;
+        $data_buku = Buku::paginate(10); // This will paginate with 10 items per page
+        $jumlah_buku = Buku::count();
+        $total_harga = Buku::sum('harga');
+        $no = $batas * ($data_buku->currentPage() - 1);        // Mengambil semua data buku
         $data_buku = Buku::all();
         
         // Menghitung jumlah data buku
@@ -22,7 +26,7 @@ class BukuController extends Controller
         $total_harga = $data_buku->sum('harga');
 
         // Mengirimkan data ke view
-        return view('index', compact('data_buku', 'jumlah_buku', 'total_harga'));
+        return view('index', compact('data_buku', 'jumlah_buku', 'total_harga', 'no'));
     }
 
     /**
@@ -38,6 +42,13 @@ class BukuController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'judul' => 'required|string|max:255',
+            'penulis' => 'required|string|max:30',
+            'harga' => 'required|numeric',
+            'tgl_terbit' => 'required|date',
+        ]);
+
         $buku = new Buku();
         $buku->judul = $request->judul;
         $buku->penulis = $request->penulis;
@@ -45,7 +56,7 @@ class BukuController extends Controller
         $buku->tgl_terbit = $request->tgl_terbit;
         $buku->save();
 
-        return redirect('/buku');
+        return redirect('/buku')->with('pesan', 'Data Buku Berhasil di Simpan');
     }
 
     /**
